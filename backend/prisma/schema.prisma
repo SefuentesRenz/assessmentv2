@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  custID      Int     @id @default(autoincrement())
+  firstFName  String  @db.VarChar(100)
+  lastLName   String  @db.VarChar(100)
+  sales       Sales[]
+
+  @@map("customer")
+}
+
+model Cashier {
+  cashierID     Int     @id @default(autoincrement())
+  cashierFName  String  @db.VarChar(100)
+  cashierLName  String  @db.VarChar(100)
+  sales         Sales[]
+
+  @@map("cashier")
+}
+
+model Supplier {
+  supplierID     Int               @id @default(autoincrement())
+  supplierDesc   String            @db.VarChar(255)
+  supplierType   String?           @db.VarChar(100)
+  products       ProductSupplier[]
+
+  @@map("supplier")
+}
+
+model Product {
+  productID   Int               @id @default(autoincrement())
+  ProdDesc    String            @db.VarChar(255)
+  suppliers   ProductSupplier[]
+  salesItems  SalesItem[]
+
+  @@map("product")
+}
+
+model ProductSupplier {
+  productSupplierID Int      @id @default(autoincrement())
+  productID         Int
+  supplierID        Int
+  product           Product  @relation(fields: [productID], references: [productID], onDelete: Cascade)
+  supplier          Supplier @relation(fields: [supplierID], references: [supplierID], onDelete: Cascade)
+
+  @@unique([productID, supplierID])
+  @@map("product_supplier")
+}
+
+model Sales {
+  salesID    Int         @id @default(autoincrement())
+  salesDate  DateTime    @default(now())
+  custID     Int
+  cashierID  Int
+  customer   Customer    @relation(fields: [custID], references: [custID], onDelete: Cascade)
+  cashier    Cashier     @relation(fields: [cashierID], references: [cashierID], onDelete: Cascade)
+  salesItems SalesItem[]
+
+  @@map("sales")
+}
+
+model SalesItem {
+  salesItemID Int     @id @default(autoincrement())
+  salesID     Int
+  productID   Int
+  quantity    Int
+  unitPrice   Decimal @db.Decimal(10, 2)
+  sales       Sales   @relation(fields: [salesID], references: [salesID], onDelete: Cascade)
+  product     Product @relation(fields: [productID], references: [productID], onDelete: Cascade)
+
+  @@map("salesitem")
+}
