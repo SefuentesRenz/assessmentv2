@@ -3,14 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model Customer {
   custID      Int     @id @default(autoincrement())
-  firstFName  String  @db.VarChar(100)
-  lastLName   String  @db.VarChar(100)
+  firstFName  String
+  lastLName   String
   sales       Sales[]
 
   @@map("customer")
@@ -18,8 +18,8 @@ model Customer {
 
 model Cashier {
   cashierID     Int     @id @default(autoincrement())
-  cashierFName  String  @db.VarChar(100)
-  cashierLName  String  @db.VarChar(100)
+  cashierFName  String
+  cashierLName  String
   sales         Sales[]
 
   @@map("cashier")
@@ -27,8 +27,8 @@ model Cashier {
 
 model Supplier {
   supplierID     Int               @id @default(autoincrement())
-  supplierDesc   String            @db.VarChar(255)
-  supplierType   String?           @db.VarChar(100)
+  supplierDesc   String
+  supplierType   String?
   products       ProductSupplier[]
 
   @@map("supplier")
@@ -36,7 +36,7 @@ model Supplier {
 
 model Product {
   productID   Int               @id @default(autoincrement())
-  ProdDesc    String            @db.VarChar(255)
+  ProdDesc    String
   suppliers   ProductSupplier[]
   salesItems  SalesItem[]
 
@@ -71,7 +71,7 @@ model SalesItem {
   salesID     Int
   productID   Int
   quantity    Int
-  unitPrice   Decimal @db.Decimal(10, 2)
+  unitPrice   Float
   sales       Sales   @relation(fields: [salesID], references: [salesID], onDelete: Cascade)
   product     Product @relation(fields: [productID], references: [productID], onDelete: Cascade)
 
