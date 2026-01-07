@@ -64,35 +64,7 @@ export default function Home() {
         ))}
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg p-8 border border-slate-200">
-        <h2 className="text-2xl font-bold text-slate-800 mb-4">System Features</h2>
-        <ul className="space-y-3 text-slate-700">
-          <li className="flex items-start gap-3">
-            <span className="text-green-600 font-bold">✓</span>
-            <span>Complete CRUD operations for all entities (Create, Read, Update, Delete)</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="text-green-600 font-bold">✓</span>
-            <span>MySQL database with normalized 3NF structure</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="text-green-600 font-bold">✓</span>
-            <span>Real-time data validation and error handling</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="text-green-600 font-bold">✓</span>
-            <span>Professional UI with Tailwind CSS styling</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="text-green-600 font-bold">✓</span>
-            <span>Comprehensive sales reporting with detailed transaction history</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="text-green-600 font-bold">✓</span>
-            <span>Search and filter capabilities across all modules</span>
-          </li>
-        </ul>
-      </div>
+      
     </div>
   );
 }
