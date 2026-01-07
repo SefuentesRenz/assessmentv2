@@ -6,7 +6,7 @@ export default function SalesReport() {
   const [report, setReport] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortField, setSortField] = useState('salesDate');
+  const [sortField, setSortField] = useState('salesID');
   const [sortOrder, setSortOrder] = useState('desc');
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function SalesReport() {
   };
 
   const exportToCSV = () => {
-    const headers = ['SalesID', 'CustID', 'CustFName', 'CustLName', 'ProductID', 'ProdDesc', 'SalesDate', 'CashierID', 'CashierFName', 'CashierLName', 'SupplierID', 'SupplierDesc', 'Quantity', 'UnitPrice'];
+    const headers = ['SalesID', 'CustID', 'CustFName', 'CustLName', 'ProductID', 'ProdDesc', 'SalesDate', 'CashierID', 'CashierFName', 'CashierLName', 'SupplierID', 'SupplierDesc'];
     const csvContent = [
       headers.join(','),
       ...sortedReport.map(row => [
@@ -68,14 +68,12 @@ export default function SalesReport() {
         row.custLName,
         row.productID,
         `"${row.prodDesc}"`,
-        new Date(row.salesDate).toLocaleDateString(),
+        new Date(row.salesDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }),
         row.cashierID,
         row.cashierFName,
         row.cashierLName,
         row.supplierID || '',
-        row.supplierDesc ? `"${row.supplierDesc}"` : '',
-        row.quantity,
-        row.unitPrice
+        row.supplierDesc ? `"${row.supplierDesc}"` : ''
       ].join(','))
     ].join('\n');
 
@@ -129,84 +127,64 @@ export default function SalesReport() {
             <table className="w-full text-sm">
               <thead className="bg-slate-100">
                 <tr>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-700 cursor-pointer hover:bg-slate-200" onClick={() => handleSort('salesID')}>
-                    Sales ID {sortField === 'salesID' && (sortOrder === 'asc' ? '↑' : '↓')}
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700 cursor-pointer hover:bg-slate-200" onClick={() => handleSort('salesID')}>
+                    SalesID {sortField === 'salesID' && (sortOrder === 'asc' ? '↑' : '↓')}
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-700">
-                    Customer
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700">
+                    CustID
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-700">
-                    Product
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700">
+                    CustFName
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-700 cursor-pointer hover:bg-slate-200" onClick={() => handleSort('salesDate')}>
-                    Date {sortField === 'salesDate' && (sortOrder === 'asc' ? '↑' : '↓')}
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700">
+                    CustLName
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-700">
-                    Cashier
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700">
+                    ProductID
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-700">
-                    Supplier
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700">
+                    ProdDesc
                   </th>
-                  <th className="px-4 py-3 text-right font-semibold text-slate-700">
-                    Qty
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700 cursor-pointer hover:bg-slate-200" onClick={() => handleSort('salesDate')}>
+                    SalesDate {sortField === 'salesDate' && (sortOrder === 'asc' ? '↑' : '↓')}
                   </th>
-                  <th className="px-4 py-3 text-right font-semibold text-slate-700">
-                    Price
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700">
+                    CashierID
                   </th>
-                  <th className="px-4 py-3 text-right font-semibold text-slate-700">
-                    Total
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700">
+                    CashierFName
+                  </th>
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700">
+                    CashierLName
+                  </th>
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700">
+                    SupplierID
+                  </th>
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700">
+                    SupplierDesc
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {sortedReport.map((row, index) => (
                   <tr key={index} className="border-b border-slate-200 hover:bg-slate-50">
-                    <td className="px-4 py-3 font-medium">{row.salesID}</td>
-                    <td className="px-4 py-3">
-                      <div className="text-slate-900">{row.custFName} {row.custLName}</div>
-                      <div className="text-xs text-slate-500">ID: {row.custID}</div>
+                    <td className="px-3 py-3">{row.salesID}</td>
+                    <td className="px-3 py-3">{row.custID}</td>
+                    <td className="px-3 py-3">{row.custFName}</td>
+                    <td className="px-3 py-3">{row.custLName}</td>
+                    <td className="px-3 py-3">{row.productID}</td>
+                    <td className="px-3 py-3">{row.prodDesc}</td>
+                    <td className="px-3 py-3">
+                      {new Date(row.salesDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="text-slate-900">{row.prodDesc}</div>
-                      <div className="text-xs text-slate-500">ID: {row.productID}</div>
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">
-                      {new Date(row.salesDate).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="text-slate-900">{row.cashierFName} {row.cashierLName}</div>
-                      <div className="text-xs text-slate-500">ID: {row.cashierID}</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      {row.supplierDesc ? (
-                        <>
-                          <div className="text-slate-900">{row.supplierDesc}</div>
-                          <div className="text-xs text-slate-500">ID: {row.supplierID}</div>
-                        </>
-                      ) : (
-                        <span className="text-slate-400">N/A</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium">{row.quantity}</td>
-                    <td className="px-4 py-3 text-right">₱{parseFloat(row.unitPrice).toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-green-600">
-                      ₱{(parseFloat(row.unitPrice) * parseInt(row.quantity)).toFixed(2)}
-                    </td>
+                    <td className="px-3 py-3">{row.cashierID}</td>
+                    <td className="px-3 py-3">{row.cashierFName}</td>
+                    <td className="px-3 py-3">{row.cashierLName}</td>
+                    <td className="px-3 py-3">{row.supplierID || ''}</td>
+                    <td className="px-3 py-3">{row.supplierDesc || ''}</td>
                   </tr>
                 ))}
               </tbody>
-              <tfoot className="bg-slate-100 font-bold">
-                <tr>
-                  <td colSpan="8" className="px-4 py-3 text-right text-slate-700">
-                    Grand Total:
-                  </td>
-                  <td className="px-4 py-3 text-right text-green-600">
-                    ₱{sortedReport.reduce((sum, row) => 
-                      sum + (parseFloat(row.unitPrice) * parseInt(row.quantity)), 0
-                    ).toFixed(2)}
-                  </td>
-                </tr>
-              </tfoot>
             </table>
           </div>
         )}

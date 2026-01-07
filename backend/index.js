@@ -42,6 +42,9 @@ app.post('/api/customers', async (req, res) => {
     });
     res.json(customer);
   } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'A customer with this first name and last name already exists.' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
@@ -55,6 +58,9 @@ app.put('/api/customers/:id', async (req, res) => {
     });
     res.json(customer);
   } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'A customer with this first name and last name already exists.' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
@@ -90,6 +96,9 @@ app.post('/api/cashiers', async (req, res) => {
     });
     res.json(cashier);
   } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'A cashier with this first name and last name already exists.' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
@@ -103,6 +112,9 @@ app.put('/api/cashiers/:id', async (req, res) => {
     });
     res.json(cashier);
   } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'A cashier with this first name and last name already exists.' });
+    }
     res.status(500).json({ error: error.message });
   }
 });

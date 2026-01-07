@@ -41,7 +41,10 @@ export default function Cashiers() {
         body: JSON.stringify(formData)
       });
 
-      if (!response.ok) throw new Error('Failed to save cashier');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save cashier');
+      }
 
       await fetchCashiers();
       setIsModalOpen(false);

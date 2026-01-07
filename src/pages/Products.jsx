@@ -47,6 +47,11 @@ export default function Products() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (formData.supplierIDs.length === 0) {
+      alert('Please select at least one supplier for this product.');
+      return;
+    }
+    
     try {
       const url = editingProduct
         ? `${API_URL}/products/${editingProduct.productID}`
@@ -186,7 +191,7 @@ export default function Products() {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Suppliers
+              Suppliers *
             </label>
             <div className="border border-slate-300 rounded-lg p-3 max-h-48 overflow-y-auto">
               {suppliers.map(supplier => (

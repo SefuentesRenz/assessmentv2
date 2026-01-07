@@ -194,7 +194,13 @@ export default function Sales() {
       key: 'items', 
       label: 'Items',
       render: (sale) => (
-        <span className="font-semibold">{sale.salesItems.length} item(s)</span>
+        <div className="text-sm">
+          {sale.salesItems.map((item, idx) => (
+            <div key={idx} className="py-0.5">
+              {item.product.ProdDesc} (×{item.quantity})
+            </div>
+          ))}
+        </div>
       )
     },
     { 
@@ -237,13 +243,73 @@ export default function Sales() {
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
             <p className="mt-4 text-slate-600">Loading sales...</p>
           </div>
+        ) : filteredSales.length === 0 ? (
+          <div className="text-center py-12 text-slate-500">
+            <div className="text-6xl mb-4">📭</div>
+            <p className="text-lg">No sales available</p>
+          </div>
         ) : (
-          <Table
-            columns={columns}
-            data={filteredSales}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-100">
+                <tr>
+                  {columns.map((column) => (
+                    <th
+                      key={column.key}
+                      className="px-6 py-3 text-left text-sm font-semibold text-slate-700"
+                    >
+                      {column.label}
+                    </th>
+                  ))}
+                  <th className="px-6 py-3 text-right text-sm font-semibold text-slate-700">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {filteredSales.map((sale) => (
+                  <tr key={sale.salesID} className="hover:bg-slate-50 transition-colors">
+                    {columns.map((column) => (
+                      <td key={column.key} className="px-6 py-4 text-sm text-slate-700">
+                        {column.render ? column.render(sale) : sale[column.key]}
+                      </td>
+                    ))}
+                    <td className="px-6 py-4 text-right text-sm">
+                      <button
+                        onClick={() => handleEdit(sale)}
+                        className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors mr-2 font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(sale.salesID)}
+                        className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors font-medium"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot className="bg-slate-100 font-bold">
+                <tr>
+                  <td colSpan="5" className="px-6 py-3 text-right text-slate-700">
+                    Grand Total:
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-700">
+                    <span className="font-semibold text-green-600">
+                      ₱{filteredSales.reduce((sum, sale) => 
+                        sum + sale.salesItems.reduce((itemSum, item) => 
+                          itemSum + (parseFloat(item.unitPrice) * parseInt(item.quantity)), 0
+                        ), 0
+                      ).toFixed(2)}
+                    </span>
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         )}
       </div>
 
@@ -326,57 +392,74 @@ export default function Sales() {
             </div>
 
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {formData.items.map((item, index) => (
-                <div key={index} className="flex gap-3 items-start bg-slate-50 p-3 rounded-lg">
-                  <div className="flex-1">
-                    <select
-                      value={item.productID}
-                      onChange={(e) => updateItem(index, 'productID', e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                      required
-                    >
-                      <option value="">Select Product</option>
-                      {products.map(product => (
-                        <option key={product.productID} value={product.productID}>
-                          {product.ProdDesc}
-                        </option>
-                      ))}
-                    </select>
+              {formData.items.map((item, index) => {
+                // Get list of already selected product IDs excluding current item
+                const selectedProductIDs = formData.items
+                  .map((itm, idx) => idx !== index ? itm.productID : null)
+                  .filter(id => id);
+                
+                // Filter available products
+                const availableProducts = products.filter(
+                  product => !selectedProductIDs.includes(product.productID.toString())
+                );
+
+                return (
+                  <div key={index} className="flex gap-3 items-start bg-slate-50 p-3 rounded-lg">
+                    <div className="flex-1">
+                      <select
+                        value={item.productID}
+                        onChange={(e) => updateItem(index, 'productID', e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                        required
+                      >
+                        <option value="">Select Product</option>
+                        {availableProducts.map(product => (
+                          <option key={product.productID} value={product.productID}>
+                            {product.ProdDesc}
+                          </option>
+                        ))}
+                        {item.productID && !availableProducts.find(p => p.productID.toString() === item.productID) && (
+                          <option key={item.productID} value={item.productID}>
+                            {products.find(p => p.productID.toString() === item.productID)?.ProdDesc || 'Selected Product'}
+                          </option>
+                        )}
+                      </select>
+                    </div>
+                    <div className="w-24">
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => updateItem(index, 'quantity', e.target.value)}
+                        placeholder="Qty"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                        required
+                      />
+                    </div>
+                    <div className="w-32">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={item.unitPrice}
+                        onChange={(e) => updateItem(index, 'unitPrice', e.target.value)}
+                        placeholder="Price"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                        required
+                      />
+                    </div>
+                    {formData.items.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeItem(index)}
+                        className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
-                  <div className="w-24">
-                    <input
-                      type="number"
-                      min="1"
-                      value={item.quantity}
-                      onChange={(e) => updateItem(index, 'quantity', e.target.value)}
-                      placeholder="Qty"
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                      required
-                    />
-                  </div>
-                  <div className="w-32">
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={item.unitPrice}
-                      onChange={(e) => updateItem(index, 'unitPrice', e.target.value)}
-                      placeholder="Price"
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                      required
-                    />
-                  </div>
-                  {formData.items.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeItem(index)}
-                      className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-sm"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

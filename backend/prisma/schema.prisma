@@ -13,6 +13,7 @@ model Customer {
   lastLName   String
   sales       Sales[]
 
+  @@unique([firstFName, lastLName])
   @@map("customer")
 }
 
@@ -22,6 +23,7 @@ model Cashier {
   cashierLName  String
   sales         Sales[]
 
+  @@unique([cashierFName, cashierLName])
   @@map("cashier")
 }
 
