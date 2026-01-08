@@ -41,7 +41,10 @@ export default function Suppliers() {
         body: JSON.stringify(formData)
       });
 
-      if (!response.ok) throw new Error('Failed to save supplier');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save supplier');
+      }
 
       await fetchSuppliers();
       setIsModalOpen(false);

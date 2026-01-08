@@ -29,7 +29,7 @@ model Cashier {
 
 model Supplier {
   supplierID     Int               @id @default(autoincrement())
-  supplierDesc   String
+  supplierDesc   String            @unique
   supplierType   String?
   products       ProductSupplier[]
 

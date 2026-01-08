@@ -145,11 +145,24 @@ app.get('/api/suppliers', async (req, res) => {
 app.post('/api/suppliers', async (req, res) => {
   try {
     const { supplierDesc, supplierType } = req.body;
+    
+    // Check if supplier with same description already exists
+    const existingSupplier = await prisma.supplier.findFirst({
+      where: { supplierDesc: supplierDesc }
+    });
+    
+    if (existingSupplier) {
+      return res.status(400).json({ error: 'A supplier with this description already exists.' });
+    }
+    
     const supplier = await prisma.supplier.create({
       data: { supplierDesc, supplierType }
     });
     res.json(supplier);
   } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'A supplier with this description already exists.' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
@@ -163,6 +176,9 @@ app.put('/api/suppliers/:id', async (req, res) => {
     });
     res.json(supplier);
   } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'A supplier with this description already exists.' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
