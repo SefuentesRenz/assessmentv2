@@ -216,6 +216,37 @@ app.get('/api/products', async (req, res) => {
 app.post('/api/products', async (req, res) => {
   try {
     const { ProdDesc, supplierIDs } = req.body;
+    
+    // Check if a product with the same description exists with any of the selected suppliers
+    const existingProducts = await prisma.product.findMany({
+      where: {
+        ProdDesc: ProdDesc,
+        suppliers: {
+          some: {
+            supplierID: {
+              in: supplierIDs
+            }
+          }
+        }
+      },
+      include: {
+        suppliers: {
+          include: {
+            supplier: true
+          }
+        }
+      }
+    });
+    
+    if (existingProducts.length > 0) {
+      const conflictingSuppliers = existingProducts[0].suppliers
+        .filter(ps => supplierIDs.includes(ps.supplierID))
+        .map(ps => ps.supplier.supplierDesc);
+      return res.status(400).json({ 
+        error: `A product with description "${ProdDesc}" already exists with supplier(s): ${conflictingSuppliers.join(', ')}` 
+      });
+    }
+    
     const product = await prisma.product.create({
       data: {
         ProdDesc,
@@ -242,15 +273,49 @@ app.post('/api/products', async (req, res) => {
 app.put('/api/products/:id', async (req, res) => {
   try {
     const { ProdDesc, supplierIDs } = req.body;
+    const productId = parseInt(req.params.id);
+    
+    // Check if another product with the same description exists with any of the selected suppliers
+    const existingProducts = await prisma.product.findMany({
+      where: {
+        ProdDesc: ProdDesc,
+        productID: {
+          not: productId  // Exclude the current product being edited
+        },
+        suppliers: {
+          some: {
+            supplierID: {
+              in: supplierIDs
+            }
+          }
+        }
+      },
+      include: {
+        suppliers: {
+          include: {
+            supplier: true
+          }
+        }
+      }
+    });
+    
+    if (existingProducts.length > 0) {
+      const conflictingSuppliers = existingProducts[0].suppliers
+        .filter(ps => supplierIDs.includes(ps.supplierID))
+        .map(ps => ps.supplier.supplierDesc);
+      return res.status(400).json({ 
+        error: `A product with description "${ProdDesc}" already exists with supplier(s): ${conflictingSuppliers.join(', ')}` 
+      });
+    }
     
     // Delete existing suppliers
     await prisma.productSupplier.deleteMany({
-      where: { productID: parseInt(req.params.id) }
+      where: { productID: productId }
     });
     
     // Update product and add new suppliers
     const product = await prisma.product.update({
-      where: { productID: parseInt(req.params.id) },
+      where: { productID: productId },
       data: {
         ProdDesc,
         suppliers: {

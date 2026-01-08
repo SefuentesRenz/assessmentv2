@@ -63,7 +63,10 @@ export default function Products() {
         body: JSON.stringify(formData)
       });
 
-      if (!response.ok) throw new Error('Failed to save product');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save product');
+      }
 
       await fetchProducts();
       setIsModalOpen(false);
