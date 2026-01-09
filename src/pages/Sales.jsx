@@ -167,10 +167,12 @@ export default function Sales() {
   };
 
   const filteredSales = sales.filter(sale =>
-    sale.salesID.toString().includes(searchTerm) ||
-    sale.customer.firstFName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sale.customer.lastLName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    sale.cashier.cashierFName.toLowerCase().includes(searchTerm.toLowerCase())
+    sale.status !== 'Inactive' && (
+      sale.salesID.toString().includes(searchTerm) ||
+      sale.customer.firstFName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sale.customer.lastLName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sale.cashier.cashierFName.toLowerCase().includes(searchTerm.toLowerCase())
+    )
   );
 
   const columns = [
@@ -189,6 +191,19 @@ export default function Sales() {
       key: 'salesDate', 
       label: 'Date',
       render: (sale) => new Date(sale.salesDate).toLocaleDateString()
+    },
+    { 
+      key: 'status', 
+      label: 'Status',
+      render: (sale) => (
+        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+          sale.status === 'Active' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-gray-100 text-gray-800'
+        }`}>
+          {sale.status}
+        </span>
+      )
     },
     { 
       key: 'items', 
@@ -293,7 +308,7 @@ export default function Sales() {
               </tbody>
               <tfoot className="bg-slate-100 font-bold">
                 <tr>
-                  <td colSpan="5" className="px-6 py-3 text-right text-slate-700">
+                  <td colSpan="6" className="px-6 py-3 text-right text-slate-700">
                     Grand Total:
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-700">

@@ -58,7 +58,7 @@ export default function SalesReport() {
   };
 
   const exportToCSV = () => {
-    const headers = ['SalesID', 'CustID', 'CustFName', 'CustLName', 'ProductID', 'ProdDesc', 'SalesDate', 'CashierID', 'CashierFName', 'CashierLName', 'SupplierID', 'SupplierDesc'];
+    const headers = ['SalesID', 'CustID', 'CustFName', 'CustLName', 'ProductID', 'ProdDesc', 'SalesDate', 'CashierID', 'CashierFName', 'CashierLName', 'SupplierID', 'SupplierDesc', 'Status'];
     const csvContent = [
       headers.join(','),
       ...sortedReport.map(row => [
@@ -73,7 +73,8 @@ export default function SalesReport() {
         row.cashierFName,
         row.cashierLName,
         row.supplierID || '',
-        row.supplierDesc ? `"${row.supplierDesc}"` : ''
+        row.supplierDesc ? `"${row.supplierDesc}"` : '',
+        row.status
       ].join(','))
     ].join('\n');
 
@@ -163,6 +164,9 @@ export default function SalesReport() {
                   <th className="px-3 py-3 text-left font-semibold text-slate-700">
                     SupplierDesc
                   </th>
+                  <th className="px-3 py-3 text-left font-semibold text-slate-700">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -182,6 +186,15 @@ export default function SalesReport() {
                     <td className="px-3 py-3">{row.cashierLName}</td>
                     <td className="px-3 py-3">{row.supplierID || ''}</td>
                     <td className="px-3 py-3">{row.supplierDesc || ''}</td>
+                    <td className="px-3 py-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        row.status === 'Active' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {row.status}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -61,6 +61,7 @@ model Sales {
   salesDate  DateTime    @default(now())
   custID     Int
   cashierID  Int
+  status     String      @default("Active")
   customer   Customer    @relation(fields: [custID], references: [custID], onDelete: Cascade)
   cashier    Cashier     @relation(fields: [cashierID], references: [cashierID], onDelete: Cascade)
   salesItems SalesItem[]

@@ -408,13 +408,14 @@ app.get('/api/sales/:id', async (req, res) => {
 
 app.post('/api/sales', async (req, res) => {
   try {
-    const { custID, cashierID, salesDate, items } = req.body;
+    const { custID, cashierID, salesDate, items, status } = req.body;
     
     const sale = await prisma.sales.create({
       data: {
         custID: parseInt(custID),
         cashierID: parseInt(cashierID),
         salesDate: salesDate ? new Date(salesDate) : new Date(),
+        status: status || 'Active',
         salesItems: {
           create: items.map(item => ({
             productID: parseInt(item.productID),
@@ -441,7 +442,7 @@ app.post('/api/sales', async (req, res) => {
 
 app.put('/api/sales/:id', async (req, res) => {
   try {
-    const { custID, cashierID, salesDate, items } = req.body;
+    const { custID, cashierID, salesDate, items, status } = req.body;
     
     // Delete existing items
     await prisma.salesItem.deleteMany({
@@ -455,6 +456,7 @@ app.put('/api/sales/:id', async (req, res) => {
         custID: parseInt(custID),
         cashierID: parseInt(cashierID),
         salesDate: salesDate ? new Date(salesDate) : undefined,
+        status: status || 'Active',
         salesItems: {
           create: items.map(item => ({
             productID: parseInt(item.productID),
@@ -481,10 +483,12 @@ app.put('/api/sales/:id', async (req, res) => {
 
 app.delete('/api/sales/:id', async (req, res) => {
   try {
-    await prisma.sales.delete({
-      where: { salesID: parseInt(req.params.id) }
+    // Instead of deleting, set status to Inactive
+    await prisma.sales.update({
+      where: { salesID: parseInt(req.params.id) },
+      data: { status: 'Inactive' }
     });
-    res.json({ message: 'Sale deleted successfully' });
+    res.json({ message: 'Sale status updated to Inactive' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -530,7 +534,8 @@ app.get('/api/sales-report', async (req, res) => {
         supplierID: item.product.suppliers[0]?.supplier.supplierID || null,
         supplierDesc: item.product.suppliers[0]?.supplier.supplierDesc || null,
         quantity: item.quantity,
-        unitPrice: item.unitPrice
+        unitPrice: item.unitPrice,
+        status: sale.status
       }))
     );
     
